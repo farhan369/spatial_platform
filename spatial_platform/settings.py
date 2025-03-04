@@ -11,16 +11,22 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+from configparser import RawConfigParser
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+PROJECT_NAME = "spatial_platform"
 
+SECRETS_DIR = Path("/etc/secret") / PROJECT_NAME
+SECRET_FILE = SECRETS_DIR / "secret.ini"
+
+config = RawConfigParser(allow_no_value=True)
+config.read(SECRET_FILE)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t@w_sxeuuu3$#x#1gq+(@36fi^u#fki8#^#kd84y62+6&3+0yg'
+SECRET_KEY = config.get("django", "SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,7 +43,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # gis
+    'django.contrib.gis',  # GeoDjango
+    'rest_framework',
+    'rest_framework_gis',  # GIS extension for DRF
+    'drf_yasg',  # API documentation
+    'django_filters',  # Filtering support
+    'spatial_api',  # Our app
 ]
+
+
+GDAL_LIBRARY_PATH = config.get("libs", "GDAL_LIBRARY_PATH")
+GEOS_LIBRARY_PATH = config.get("libs", "GEOS_LIBRARY_PATH")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -74,12 +92,16 @@ WSGI_APPLICATION = 'spatial_platform.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": 'django.contrib.gis.db.backends.postgis',
+        "NAME": config.get("database", "DB_NAME"),
+        "USER": config.get("database", "DB_USER"),
+        "PASSWORD": config.get("database", "DB_PASSWORD"),
+        "PORT": "5432",
+        "HOST": config.get("database", "HOST"),
+        "DISABLE_SERVER_SIDE_CURSORS": True,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -121,3 +143,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+}
