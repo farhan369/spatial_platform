@@ -10,6 +10,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class PointSerializer(serializers.ModelSerializer):
+    """
+    Serializer for SpatialPoint model.
+    """
     category = serializers.PrimaryKeyRelatedField(
         queryset=point_models.Category.objects.all(),
         required=False,
@@ -23,6 +26,9 @@ class PointSerializer(serializers.ModelSerializer):
 
 
 class PolygonSerializer(serializers.ModelSerializer):
+    """
+    Serializer for SpatialPolygon model.
+    """
     category = serializers.PrimaryKeyRelatedField(
         queryset=point_models.Category.objects.all(),
         required=False,

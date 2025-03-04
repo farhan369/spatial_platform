@@ -4,6 +4,9 @@ from spatial_api.models import points as point_model
 from spatial_api.models import polygon as polygon_model
 
 class SpatialPointFilter(django_filters.FilterSet):
+    """
+    A filterset for SpatialPoints.
+    """
     category = django_filters.NumberFilter(
         field_name='category__id',
         lookup_expr='exact'
@@ -15,6 +18,9 @@ class SpatialPointFilter(django_filters.FilterSet):
 
 
 class SpatialPolygontFilter(django_filters.FilterSet):
+    """
+    A filterset for SpatialPolygons.
+    """
     category = django_filters.NumberFilter(
         field_name='category__id',
         lookup_expr='exact'

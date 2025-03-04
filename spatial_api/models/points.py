@@ -4,7 +4,14 @@ from django.contrib.gis.geos import Point
 
 class Category(models.Model):
     """
-    A category for spatial points.
+   A category for spatial points.
+
+   Attributes:
+       name (str): Unique name of the category.
+       description (str): Optional detailed description of the category.
+       color (str): Hexadecimal color code for display purposes.
+       created_at (datetime): The date and time when the category was created.
+       updated_at (datetime): The date and time when the category was last updated.
     """
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -18,7 +25,17 @@ class Category(models.Model):
 
 class SpatialPoint(models.Model):
     """
-    A point in the 2D space with additional fields for name, description, and location.
+    Represents a point in 2D space with associated metadata and a geographic location.
+
+    Attributes:
+        category (Category): The category this point belongs to.
+        name (str): The name of the spatial point.
+        description (str): Optional description of the spatial point.
+        metadata (dict): Additional metadata stored as JSON.
+        location (Point): The geographic location represented as a point (longitude, latitude).
+        is_active (bool): Flag to mark if the point is active.
+        created_at (datetime): The timestamp when the point was created.
+        updated_at (datetime): The timestamp when the point was last updated.
     """
     category = models.ForeignKey(
         Category,
